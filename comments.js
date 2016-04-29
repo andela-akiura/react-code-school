@@ -18,20 +18,47 @@ class Comment extends Component {
     }
 }
 
+class CommentForm extends Component {
+    _handleSubmit(event) {
+        event.preventDefault();
+        let author = this._author;
+        let body = this._body;
+
+        this.props.addComment(author.value, body.value);
+
+    }
+
+    render() {
+        return (
+            <form className="comment-form" onSubmit={this._handleSubmit.bind(this)}>
+                <label>Join the discussion</label>
+                <div className="comment-form-fields">
+                    <input placeholder="Name:" ref={(input) => this._author = input}/>
+                    <textarea placeholder="Comment:" ref={(textarea) => this._body = textarea}></textarea>
+                </div>
+                <div className="comment-form-actions">
+                    <button type="submit">Post comment</button>
+                </div>
+            </form>
+        )
+    }
+}
+
 class CommentBox extends Component {
     constructor() {
         super();
         this.state = {
-            showComments: false
+            showComments: false,
+            comments: [
+                {id: 1, author: 'Alex kiura', body: 'Great app!'},
+                {id: 2, author: 'Steve Job', body: 'I couldn\'t agree more!'},
+            ]
         };
     }
+
     _getComments() {
-        const commentList = [
-            {id: 1, author: 'Alex kiura', body: 'Great app!'},
-            {id: 1, author: 'Steve Job', body: 'I couldn\'t agree more!'},
-        ];
-        return commentList.map((comment) => {
-            return (<Comment author={comment.author} body={comment.body}/>);
+        return this.state.comments.map((comment) => {
+            return (<Comment author={comment.author} body={comment.body} key={comment.id}/>);
         });
     }
 
