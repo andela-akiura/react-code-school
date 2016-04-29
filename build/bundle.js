@@ -112,26 +112,60 @@
 	    return Comment;
 	}(_react.Component);
 
-	var CommentBox = function (_Component2) {
-	    _inherits(CommentBox, _Component2);
+	var CommentForm = function (_Component2) {
+	    _inherits(CommentForm, _Component2);
+
+	    function CommentForm() {
+	        _classCallCheck(this, CommentForm);
+
+	        return _possibleConstructorReturn(this, Object.getPrototypeOf(CommentForm).apply(this, arguments));
+	    }
+
+	    _createClass(CommentForm, [{
+	        key: '_handleSubmit',
+	        value: function _handleSubmit(event) {
+	            event.preventDefault();
+	            var author = this._author;
+	            var body = this._body;
+
+	            this.props.addComment(author.value, body.value);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this3 = this;
+
+	            return _react2.default.createElement('form', { className: 'comment-form', onSubmit: this._handleSubmit.bind(this) }, _react2.default.createElement('label', null, 'Join the discussion'), _react2.default.createElement('div', { className: 'comment-form-fields' }, _react2.default.createElement('input', { placeholder: 'Name:', ref: function ref(input) {
+	                    return _this3._author = input;
+	                } }), _react2.default.createElement('textarea', { placeholder: 'Comment:', ref: function ref(textarea) {
+	                    return _this3._body = textarea;
+	                } })), _react2.default.createElement('div', { className: 'comment-form-actions' }, _react2.default.createElement('button', { type: 'submit' }, 'Post comment')));
+	        }
+	    }]);
+
+	    return CommentForm;
+	}(_react.Component);
+
+	var CommentBox = function (_Component3) {
+	    _inherits(CommentBox, _Component3);
 
 	    function CommentBox() {
 	        _classCallCheck(this, CommentBox);
 
-	        var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(CommentBox).call(this));
+	        var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(CommentBox).call(this));
 
-	        _this2.state = {
-	            showComments: false
+	        _this4.state = {
+	            showComments: false,
+	            comments: [{ id: 1, author: 'Alex kiura', body: 'Great app!' }, { id: 2, author: 'Steve Job', body: 'I couldn\'t agree more!' }]
 	        };
-	        return _this2;
+	        return _this4;
 	    }
 
 	    _createClass(CommentBox, [{
 	        key: '_getComments',
 	        value: function _getComments() {
-	            var commentList = [{ id: 1, author: 'Alex kiura', body: 'Great app!' }, { id: 1, author: 'Steve Job', body: 'I couldn\'t agree more!' }];
-	            return commentList.map(function (comment) {
-	                return _react2.default.createElement(Comment, { author: comment.author, body: comment.body });
+	            return this.state.comments.map(function (comment) {
+	                return _react2.default.createElement(Comment, { author: comment.author, body: comment.body, key: comment.id });
 	            });
 	        }
 	    }, {
@@ -146,13 +180,33 @@
 	            }
 	        }
 	    }, {
+	        key: '_handleClick',
+	        value: function _handleClick() {
+	            this.setState({
+	                showComments: !this.state.showComments
+	            });
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var comments = this._getComments();
+	            var commentNodes = void 0;
+	            var buttonText = 'Show comments';
 	            if (this.state.showComments) {
+	                buttonText = 'Hide comments';
 	                commentNodes = _react2.default.createElement('div', { className: 'comment-list' }, comments);
 	            }
-	            return _react2.default.createElement('div', { className: 'comment-box' }, _react2.default.createElement('h3', null, 'comments'), _react2.default.createElement('h4', { className: 'comment-count' }, this._getCommentsTitle(comments.length)), commentNodes);
+	            return _react2.default.createElement('div', { className: 'comment-box' }, _react2.default.createElement(CommentForm, { addComment: this._addComment.bind(this) }), _react2.default.createElement('h3', null, 'comments'), _react2.default.createElement('h4', { className: 'comment-count' }, this._getCommentsTitle(comments.length)), _react2.default.createElement('button', { onClick: this._handleClick.bind(this) }, buttonText), commentNodes);
+	        }
+	    }, {
+	        key: '_addComment',
+	        value: function _addComment(author, body) {
+	            var comment = {
+	                id: this.state.comments.length + 1,
+	                author: author,
+	                body: body
+	            };
+	            this.setState({ comments: this.state.comments.concat([comment]) });
 	        }
 	    }]);
 
