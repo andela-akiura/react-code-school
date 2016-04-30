@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-
+import $ from "jquery";
 
 class Comment extends Component {
     render() {
@@ -50,32 +50,17 @@ class CommentBox extends Component {
         this.state = {
             showComments: false,
             comments: [
-                {id: 1, author: 'Alex kiura', body: 'Great app!'},
-                {id: 2, author: 'Steve Job', body: 'I couldn\'t agree more!'},
+                // {id: 1, author: 'Alex kiura', body: 'Great app!'},
+                // {id: 2, author: 'Steve Job', body: 'I couldn\'t agree more!'},
             ]
         };
     }
-
-    _getComments() {
-        return this.state.comments.map((comment) => {
-            return (<Comment author={comment.author} body={comment.body} key={comment.id}/>);
-        });
+    componentDidMount() {
+        this._timer = setInterval(() => this._fetchComments(), 5000);
     }
 
-    _getCommentsTitle(commentCount) {
-        if (commentCount === 0) {
-            return 'No comments yet';
-        } else if (commentCount === 1) {
-            return '1 comment';
-        } else {
-            return `${commentCount} comments`;
-        }
-    }
-
-    _handleClick() {
-        this.setState({
-            showComments: !this.state.showComments
-        });
+    componentWillUnmount() {
+        clearInterval(this._timer);
     }
 
     render() {
@@ -106,6 +91,37 @@ class CommentBox extends Component {
             body
         };
         this.setState({ comments: this.state.comments.concat([comment])})
+    }
+    _getComments() {
+        return this.state.comments.map((comment) => {
+            return (<Comment author={comment.author} body={comment.body} key={comment.id}/>);
+        });
+    }
+
+    _getCommentsTitle(commentCount) {
+        if (commentCount === 0) {
+            return 'No comments yet';
+        } else if (commentCount === 1) {
+            return '1 comment';
+        } else {
+            return `${commentCount} comments`;
+        }
+    }
+
+    _handleClick() {
+        this.setState({
+            showComments: !this.state.showComments
+        });
+    }
+
+    _fetchComments() {
+        $.ajax({
+            method: 'GET',
+            url: '/api/comments',
+            success: (comments) => {
+                this.setState({ comments })
+            }
+        })
     }
 }
 
