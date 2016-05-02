@@ -79,6 +79,16 @@
 	    return obj && obj.__esModule ? obj : { default: obj };
 	}
 
+	function _toConsumableArray(arr) {
+	    if (Array.isArray(arr)) {
+	        for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+	            arr2[i] = arr[i];
+	        }return arr2;
+	    } else {
+	        return Array.from(arr);
+	    }
+	}
+
 	function _classCallCheck(instance, Constructor) {
 	    if (!(instance instanceof Constructor)) {
 	        throw new TypeError("Cannot call a class as a function");
@@ -109,7 +119,15 @@
 	    _createClass(Comment, [{
 	        key: 'render',
 	        value: function render() {
-	            return _react2.default.createElement('div', { className: 'comment' }, _react2.default.createElement('p', { className: 'comment-header' }, 'Author: ', this.props.author), _react2.default.createElement('p', { className: 'comment-body' }, 'Comment: ', this.props.body), _react2.default.createElement('div', { className: 'comemnt-footer' }, _react2.default.createElement('a', { href: '#', className: 'comment-footer-delete' }, 'Delete comment')));
+	            return _react2.default.createElement('div', { className: 'comment' }, _react2.default.createElement('p', { className: 'comment-header' }, 'Author: ', this.props.author), _react2.default.createElement('p', { className: 'comment-body' }, 'Comment: ', this.props.body), _react2.default.createElement('div', { className: 'comemnt-footer' }, _react2.default.createElement('a', { href: '#', onClick: this._handleDelete.bind(this), className: 'comment-footer-delete' }, 'Delete comment')));
+	        }
+	    }, {
+	        key: '_handleDelete',
+	        value: function _handleDelete(event) {
+	            event.preventDefault();
+	            if (confirm('Are you sure?')) {
+	                this.props.onDelete(this.props.comment);
+	            }
 	        }
 	    }]);
 
@@ -169,6 +187,20 @@
 	    }
 
 	    _createClass(CommentBox, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            var _this5 = this;
+
+	            this._timer = setInterval(function () {
+	                return _this5._fetchComments();
+	            }, 5000);
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            clearInterval(this._timer);
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var comments = this._getComments();
@@ -183,18 +215,26 @@
 	    }, {
 	        key: '_addComment',
 	        value: function _addComment(author, body) {
+	            var _this6 = this;
+
 	            var comment = {
 	                id: this.state.comments.length + 1,
 	                author: author,
 	                body: body
 	            };
+	            _jquery2.default.post('api/comments/', { comment: comment }).success(function (newComment) {
+	                _this6.setState({ comments: comments });
+	            });
 	            this.setState({ comments: this.state.comments.concat([comment]) });
 	        }
 	    }, {
 	        key: '_getComments',
 	        value: function _getComments() {
+	            var _this7 = this;
+
 	            return this.state.comments.map(function (comment) {
-	                return _react2.default.createElement(Comment, { author: comment.author, body: comment.body, key: comment.id });
+	                return _react2.default.createElement(Comment, { author: comment.author, body: comment.body, key: comment.id,
+	                    comment: comment, onDelete: _this7._deleteComment.bind(_this7) });
 	            });
 	        }
 	    }, {
@@ -218,15 +258,28 @@
 	    }, {
 	        key: '_fetchComments',
 	        value: function _fetchComments() {
-	            var _this5 = this;
+	            var _this8 = this;
 
 	            _jquery2.default.ajax({
 	                method: 'GET',
 	                url: '/api/comments',
 	                success: function success(comments) {
-	                    _this5.setState({ comments: comments });
+	                    _this8.setState({ comments: comments });
 	                }
 	            });
+	        }
+	    }, {
+	        key: '_deleteComment',
+	        value: function _deleteComment(comment) {
+	            _jquery2.default.ajax({
+	                method: 'DELETE',
+	                url: '/api/comments/' + comment.id
+	            });
+	            var comments = [].concat(_toConsumableArray(this.state.comments));
+	            var commentIndex = comments.indexOf(comment);
+	            comments.splice(commentIndex, 1);
+
+	            this.setState({ comments: comments });
 	        }
 	    }]);
 
